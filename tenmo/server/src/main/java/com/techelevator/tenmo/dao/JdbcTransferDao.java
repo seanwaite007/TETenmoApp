@@ -2,14 +2,16 @@ package com.techelevator.tenmo.dao;
 
 import com.techelevator.tenmo.model.Transfer;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public class JdbcTransferDao implements TransferDao{
 
     @Override
-    public Transfer sendMoney(Transfer transferAmount) {
+    public boolean sendMoney(BigDecimal transferAmount) {
+        boolean success = false;
 
-        return null;
+        return success;
     }
 
     @Override
