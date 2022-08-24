@@ -26,6 +26,16 @@ public class JdbcAccountDao implements AccountDao{
         return account;
     }
 
+    @Override
+    public Account getAccountByID() {
+        return null;
+    }
+
+    @Override
+    public boolean updateBalance() {
+        return false;
+    }
+
 
     private Account mapRowToAccount(SqlRowSet rowSet) {
         Account account = new Account();

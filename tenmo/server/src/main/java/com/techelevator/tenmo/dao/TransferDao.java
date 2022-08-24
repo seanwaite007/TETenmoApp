@@ -7,10 +7,13 @@ import java.util.List;
 
 public interface TransferDao {
 
-    boolean sendMoney(BigDecimal transferAmount);
+    boolean sendMoney(Transfer transfer);
 
     List<Transfer> getAllTransfers();
 
     Transfer getTransferById (int transferId);
+
+    Transfer getAccountFrom(int transferId);
+
 
 }

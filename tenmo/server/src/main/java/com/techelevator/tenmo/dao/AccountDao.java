@@ -6,5 +6,9 @@ public interface AccountDao {
 
     Account getBalance(int accountId);
 
+    Account getAccountByID();
+
+    boolean updateBalance();
+
 
 }
