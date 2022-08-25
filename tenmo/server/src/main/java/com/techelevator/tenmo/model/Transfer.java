@@ -14,10 +14,14 @@ public class Transfer {
 
     }
 
-    public Transfer(int transferId, int accountId, BigDecimal transferAmount) {
+    public Transfer(int transferId, int accountId,
+                    BigDecimal transferAmount,
+                    int account_To, int account_from) {
         this.transferId = transferId;
         this.accountId = accountId;
         this.transferAmount = transferAmount;
+        this.account_To = account_To;
+        this.account_from = account_from;
     }
 
     public int getAccount_To() {

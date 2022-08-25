@@ -52,8 +52,10 @@ CREATE SEQUENCE seq_transfer_id
 	CONSTRAINT FK_transfer_account_to FOREIGN KEY (account_from) REFERENCES account (account_id),
 	CONSTRAINT account_chk check (account_from != account_to),
 	CONSTRAINT amount_to_transfer check (amount_to_transfer > 0),
-	CONSTRAINT amount_to_transfer check (amount_to_transfer <= (SELECT balance FROM account WHERE account_id = transfer.account_from))
+	CONSTRAINT amount_to_transfer check (amount_to_transfer <=
+	(SELECT balance FROM account WHERE account_id = transfer.account_from))
 );
+
 SELECT user_id, account_id, balance 
 FROM tenmo_user 
 JOIN user_id ON account.user_id = tenmo_user.user_id

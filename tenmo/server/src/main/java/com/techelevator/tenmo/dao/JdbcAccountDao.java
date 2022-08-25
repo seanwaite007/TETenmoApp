@@ -7,9 +7,11 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 @Component
-public class JdbcAccountDao implements AccountDao{
+public class JdbcAccountDao implements AccountDao {
 
     private JdbcTemplate jdbcTemplate;
 
@@ -28,63 +30,90 @@ public class JdbcAccountDao implements AccountDao{
     public Account getAccountByUsername(String username) {
 
         String sql = "SELECT user_id, account_id, balance FROM account" +
-                     " JOIN tenmo_user ON account.user_id = tenmo_user.user_id " +
-                     " WHERE username = ? ";
+                " JOIN tenmo_user ON account.user_id = tenmo_user.user_id " +
+                " WHERE username = ? ";
 
         SqlRowSet rowSet = jdbcTemplate.queryForRowSet(sql, username);
-        if(rowSet.next()){
+        if (rowSet.next()) {
             return mapRowToAccount(rowSet);
-        };
+        }
+        ;
         throw new UsernameNotFoundException("User " + username + " was not found.");
     }
+
+
 
     @Override
     public BigDecimal getBalanceByUserName(String username) {
 
-            Account account = null;
+        Account account = null;
 
-            String sql = "SELECT * FROM account " +
-                    " JOIN tenmo_user ON tenmo_user.user_id = account.user_id " +
-                    " WHERE username = ? ";
+        String sql = "SELECT * FROM account " +
+                " JOIN tenmo_user ON tenmo_user.user_id = account.user_id " +
+                " WHERE username = ? ";
 
-            SqlRowSet rowSet = jdbcTemplate.queryForRowSet(sql, username);
-            if(rowSet.next()) {
-                account = mapRowToAccount(rowSet);
-            }
-            return account.getBalance();
+        SqlRowSet rowSet = jdbcTemplate.queryForRowSet(sql, username);
+        if (rowSet.next()) {
+            account = mapRowToAccount(rowSet);
         }
-
+        return account.getBalance();
+    }
 
 
     //TODO: Method that will be called to update accounts, this is our one method, it will take in a user and the amount
     //TODO: THIS is how we update 2 at once, remember the catcards
 
     @Override
-    public boolean updateAccount(String userName, BigDecimal amountToTransfer) {
-        boolean success= false;
+    public boolean updateAccount(String userName, String userName2, BigDecimal amountToTransfer) {
+        boolean success = false;
 
-        Account updateAccount = getAccountByUsername(userName);
+        Account fromAccount = getAccountByUsername(userName);
+        Account toAccount = getAccountByUsername(userName2);
 
-        updateAccount.setBalance(updateAccount.getBalance().add(amountToTransfer));
+        if (fromAccount.getBalance().compareTo(amountToTransfer) >= 0
+                && amountToTransfer.compareTo(BigDecimal.ZERO) > 0 &&
+        fromAccount.equals(toAccount)) {
+            fromAccount.setBalance(fromAccount.getBalance().subtract(amountToTransfer));
+            toAccount.setBalance(toAccount.getBalance().add(amountToTransfer));
 
-        String sql = "UPDATE account" +
-                     " SET balance" +
-                     " WHERE username = ?; ";
+            String sql = "UPDATE account" +
+                    " SET balance = ?" +
+                    " WHERE username = ?; ";
 
-        if (getAccountByUsername(userName) != null) {
-            jdbcTemplate.update(sql, updateAccount.getBalance(), userName);
-            success = true;
+            String sql2 = "UPDATE account" +
+                    " SET balance = ?" +
+                    " WHERE username = ?; ";
+
+            if (getAccountByUsername(userName) != null) {
+                jdbcTemplate.update(sql, fromAccount.getBalance(), userName);
+                jdbcTemplate.update(sql2, toAccount.getBalance(), userName2);
+                success = true;
+            }
         }
-        return success;
+            return success;
+        }
+
+
+        @Override
+        public List<Account> getAllAccounts () {
+            List<Account> accounts = new ArrayList<Account>();
+            String sql =
+                    "SELECT * " +
+                            "FROM account ;";
+            SqlRowSet rowSet = jdbcTemplate.queryForRowSet(sql);
+            while (rowSet.next()) {
+                accounts.add(mapRowToAccount(rowSet));
+            }
+            return accounts;
+        }
+
+
+        private Account mapRowToAccount (SqlRowSet rowSet){
+            Account account = new Account();
+            account.setAccountId(rowSet.getInt("account_id"));
+            account.setUserId(rowSet.getInt("user_id"));
+            account.setBalance(rowSet.getBigDecimal("balance"));
+            return account;
+        }
+
     }
-
-
-    private Account mapRowToAccount(SqlRowSet rowSet) {
-        Account account = new Account();
-        account.setAccountId(rowSet.getInt("account_id"));
-        account.setUserId(rowSet.getInt("user_id"));
-        account.setBalance(rowSet.getBigDecimal("balance"));
-        return account;
-    }
-
-}

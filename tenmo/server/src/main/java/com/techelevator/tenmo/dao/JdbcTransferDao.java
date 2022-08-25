@@ -17,9 +17,25 @@ public class JdbcTransferDao implements TransferDao {
     private JdbcTemplate jdbcTemplate;
 
     public JdbcTransferDao(JdbcTemplate jdbcTemplate) {
+
         this.jdbcTemplate = jdbcTemplate;
     }
 
+
+    @Override
+    public Transfer createTransfer(Transfer transfer) {
+
+        String sql =
+                "INSERT INTO transfer (amount_to_transfer, account_to, account_from) " +
+                        "VALUES (?, ?, ?) " +
+                        "RETURNING transfer_id ;";
+
+         Integer newId = jdbcTemplate.update(sql, transfer.getTransferAmount(),
+                transfer.getAccount_To(),
+                transfer.getAccount_from());
+
+        return getTransferById(newId);
+    }
 
     @Override
     public List<Transfer> getAllTransfers() {
@@ -37,7 +53,21 @@ public class JdbcTransferDao implements TransferDao {
 
     @Override
     public Transfer getTransferByAccount(String userName) {
+
         return null;
+    }
+
+    @Override
+    public Transfer getTransferById(int transferId) {
+        Transfer transfer = null;
+        String sql =
+                "SELECT transfer_id, amount_to_transfer, account_to, account_from " +
+                        "FROM transfer;";
+        SqlRowSet results = jdbcTemplate.queryForRowSet(sql, transferId);
+        if(results.next()) {
+            transfer = mapRowToTransfer(results);
+        }
+        return transfer;
     }
 
 

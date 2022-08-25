@@ -41,4 +41,10 @@ public class Account {
         this.balance = balance;
     }
 
+    @Override
+    public boolean equals(Object object) {
+
+        return this.accountId == ((Account)object).accountId;
+    }
+
 }

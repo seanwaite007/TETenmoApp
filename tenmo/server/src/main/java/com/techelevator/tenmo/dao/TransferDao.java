@@ -9,10 +9,12 @@ public interface TransferDao {
     //TODO: CRUD operations for transfer
 
 
-
+    Transfer createTransfer(Transfer transfer);
 
     List<Transfer> getAllTransfers();
 
     Transfer getTransferByAccount (String userName);
+
+    Transfer getTransferById(int transferId);
 
 }
