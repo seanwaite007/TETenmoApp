@@ -9,6 +9,7 @@ public class Transfer {
     private BigDecimal transferAmount;
     private int account_To;
     private int account_from;
+    private String transferStatus = "Approved";
 
     public Transfer() {
 
@@ -16,12 +17,13 @@ public class Transfer {
 
     public Transfer(int transferId, int accountId,
                     BigDecimal transferAmount,
-                    int account_To, int account_from) {
+                    int account_To, int account_from, String transferStatus) {
         this.transferId = transferId;
         this.accountId = accountId;
         this.transferAmount = transferAmount;
         this.account_To = account_To;
         this.account_from = account_from;
+        this.transferStatus = transferStatus;
     }
 
     public int getAccount_To() {

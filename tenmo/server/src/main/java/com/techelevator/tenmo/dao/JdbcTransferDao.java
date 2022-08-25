@@ -53,8 +53,16 @@ public class JdbcTransferDao implements TransferDao {
 
     @Override
     public Transfer getTransferByAccount(String userName) {
-
-        return null;
+        Transfer transfer = null;
+        String sql =
+                "SELECT * " +
+                        "FROM transfer JOIN account ON transfer.account_id = account.account_id" +
+                        "WHERE username  = ?";
+        SqlRowSet results = jdbcTemplate.queryForRowSet(sql, userName);
+        if(results.next()) {
+            transfer = mapRowToTransfer(results);
+        }
+        return transfer;
     }
 
     @Override
@@ -62,7 +70,8 @@ public class JdbcTransferDao implements TransferDao {
         Transfer transfer = null;
         String sql =
                 "SELECT transfer_id, amount_to_transfer, account_to, account_from " +
-                        "FROM transfer;";
+                        "FROM transfer;" +
+                        "WHERE transfer_id = ?";
         SqlRowSet results = jdbcTemplate.queryForRowSet(sql, transferId);
         if(results.next()) {
             transfer = mapRowToTransfer(results);

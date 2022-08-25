@@ -28,12 +28,6 @@ public class AccountController {
     @Autowired
     private UserDao userDao;
 
-    // remove constructor due to @Autowired ??
-//    public AccountController( AccountDao accountDao) {
-//
-//        this.accountDao = accountDao;
-//
-//    }
 
     @RequestMapping(path = "/account", method = RequestMethod.GET)
     public Account getAccountByUsername (@PathVariable String userName)
@@ -51,21 +45,33 @@ public class AccountController {
 
 
     // update account
-    @RequestMapping(path = "/account/balance", method = RequestMethod.PUT)
-    public boolean updateAccount (@RequestBody Transfer transfer,
-                                  @RequestParam BigDecimal transferAmount,
-                                  Principal principal) {
+   @RequestMapping(path = "/account/balance", method = RequestMethod.POST)
 
-        String sender = principal.getName();
-        int transferAccount = transfer.getAccount_To();
-        String recipient = userDao.getUserNameByAccountId(transferAccount);
+   public Transfer updateAccount (@RequestBody Transfer transfer,
+                                 @RequestParam BigDecimal transferAmount,
+                                 Principal principal)
+   {
+       //principal is going to give us the senders name
+       String sender = principal.getName();
+       accountDao.getAccountByUsername(sender);
 
-        accountDao.getAccountByUsername(sender);
-        Account receivedAccount = accountDao.getAccountByUsername(recipient);
+       //this gives us the transfer count ID
+       int transferAccount = transfer.getAccount_To();
 
-        accountDao.updateAccount(sender, recipient, transferAmount);
+       //this gives us our recieving account username
+       String recipient = userDao.getUserNameByAccountId(transferAccount);
 
-        return accountDao.updateAccount(sender, recipient, transferAmount);
-    }
+       //this actually provides us with the account of the recipient
+       Account receivedAccount = accountDao.getAccountByUsername(recipient);
+
+       //So when this happens we update both accounts based on transferAMOUNT
+
+       Transfer newTransfer = new Transfer();
+       if(accountDao.updateAccount(sender, recipient, transferAmount)){
+           newTransfer =  transferDao.createTransfer(transfer);
+       }
+       return newTransfer;
+
+   }
 
 }

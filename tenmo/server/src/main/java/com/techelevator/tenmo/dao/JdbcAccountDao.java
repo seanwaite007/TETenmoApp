@@ -72,7 +72,7 @@ public class JdbcAccountDao implements AccountDao {
 
         if (fromAccount.getBalance().compareTo(amountToTransfer) >= 0
                 && amountToTransfer.compareTo(BigDecimal.ZERO) > 0 &&
-        fromAccount.equals(toAccount)) {
+                fromAccount.equals(toAccount)) {
             fromAccount.setBalance(fromAccount.getBalance().subtract(amountToTransfer));
             toAccount.setBalance(toAccount.getBalance().add(amountToTransfer));
 
