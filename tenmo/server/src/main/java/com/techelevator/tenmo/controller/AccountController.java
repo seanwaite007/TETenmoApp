@@ -24,7 +24,7 @@ public class AccountController {
 
     }
 
-    // get account by userName;
+    // get an account by userName;
 
    @RequestMapping(path = "/account/balance", method = RequestMethod.GET)
     public BigDecimal getBalance (Principal principal) {
