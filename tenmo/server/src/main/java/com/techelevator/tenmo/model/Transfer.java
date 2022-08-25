@@ -10,6 +10,23 @@ public class Transfer {
     private int account_To;
     private int account_from;
     private String transferStatus = "Approved";
+    private String accountToUser;
+
+    public String getTransferStatus() {
+        return transferStatus;
+    }
+
+    public void setTransferStatus(String transferStatus) {
+        this.transferStatus = transferStatus;
+    }
+
+    public String getAccountToUser() {
+        return accountToUser;
+    }
+
+    public void setAccountToUser(String accountToUser) {
+        this.accountToUser = accountToUser;
+    }
 
     public Transfer() {
 
@@ -17,7 +34,8 @@ public class Transfer {
 
     public Transfer(int transferId, int accountId,
                     BigDecimal transferAmount,
-                    int account_To, int account_from, String transferStatus) {
+                    int account_To, int account_from, String transferStatus
+    ) {
         this.transferId = transferId;
         this.accountId = accountId;
         this.transferAmount = transferAmount;

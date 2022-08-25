@@ -29,7 +29,7 @@ public class JdbcAccountDao implements AccountDao {
     @Override
     public Account getAccountByUsername(String username) {
 
-        String sql = "SELECT user_id, account_id, balance FROM account" +
+        String sql = "SELECT account.user_id, account_id, balance FROM account" +
                 " JOIN tenmo_user ON account.user_id = tenmo_user.user_id " +
                 " WHERE username = ? ";
 
@@ -71,22 +71,24 @@ public class JdbcAccountDao implements AccountDao {
         Account toAccount = getAccountByUsername(userName2);
 
         if (fromAccount.getBalance().compareTo(amountToTransfer) >= 0
-                && amountToTransfer.compareTo(BigDecimal.ZERO) > 0 &&
-                fromAccount.equals(toAccount)) {
+                && amountToTransfer.compareTo(BigDecimal.ZERO) > 0
+//                && fromAccount.equals(toAccount)
+        ) {
             fromAccount.setBalance(fromAccount.getBalance().subtract(amountToTransfer));
             toAccount.setBalance(toAccount.getBalance().add(amountToTransfer));
 
             String sql = "UPDATE account" +
                     " SET balance = ?" +
-                    " WHERE username = ?; ";
+                    " WHERE account_id = ?; ";
 
             String sql2 = "UPDATE account" +
                     " SET balance = ?" +
-                    " WHERE username = ?; ";
+                    " WHERE account_id = ?; ";
 
-            if (getAccountByUsername(userName) != null) {
-                jdbcTemplate.update(sql, fromAccount.getBalance(), userName);
-                jdbcTemplate.update(sql2, toAccount.getBalance(), userName2);
+            if (getAccountByUsername(userName) != null
+                    && getAccountByUsername(userName2) != null) {
+                jdbcTemplate.update(sql, fromAccount.getBalance(), fromAccount.getAccountId());
+                jdbcTemplate.update(sql2, toAccount.getBalance(), toAccount.getAccountId());
                 success = true;
             }
         }

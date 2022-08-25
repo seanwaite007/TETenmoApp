@@ -83,10 +83,10 @@ public class JdbcUserDao implements UserDao {
     public String getUserNameByAccountId(int accountId) {
         User user = null;
         String sql =
-                "SELECT user_id " +
+                "SELECT account.user_id " +
                         "FROM account " +
                         "JOIN tenmo_user ON tenmo_user.user_id = account.user_id " +
-                        "WHERE username = ? ;";
+                        "WHERE account_id = ? ;";
         SqlRowSet results = jdbcTemplate.queryForRowSet(sql, accountId);
         if (results.next()) {
             user = mapRowToUser(results);
