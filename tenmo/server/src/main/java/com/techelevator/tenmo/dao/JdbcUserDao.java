@@ -19,6 +19,7 @@ public class JdbcUserDao implements UserDao {
     private JdbcTemplate jdbcTemplate;
 
     public JdbcUserDao(JdbcTemplate jdbcTemplate) {
+
         this.jdbcTemplate = jdbcTemplate;
     }
 
@@ -67,6 +68,7 @@ public class JdbcUserDao implements UserDao {
         } catch (DataAccessException e) {
             return false;
         }
+
         Account account = new Account();
         account.setUserId(newUserId);
         String sql2 =

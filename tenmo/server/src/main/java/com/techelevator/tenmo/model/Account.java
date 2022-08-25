@@ -9,7 +9,6 @@ public class Account {
     private BigDecimal balance = new BigDecimal("1000");
 
     public Account() {
-
     }
 
     public Account(int accountId, int userId, BigDecimal balance) {

@@ -4,12 +4,15 @@ import com.techelevator.tenmo.model.Account;
 import com.techelevator.tenmo.model.Transfer;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
+import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-public class JdbcTransferDao implements TransferDao{
+
+@Component
+public class JdbcTransferDao implements TransferDao {
 
     private JdbcTemplate jdbcTemplate;
 
@@ -17,30 +20,6 @@ public class JdbcTransferDao implements TransferDao{
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    @Override
-    public boolean sendMoney(Transfer transfer) {
-
-        String sqlSelect =
-                "SELECT amount_to_transfer" +
-                        "FROM transfer" +
-                        "WHERE transfer_id = ?;";
-
-        String sql =
-                "UPDATE account" +
-                        "SET balance = ?" +
-                        "WHERE account_to = ?;";
-        String sql2 =
-                "UPDATE account" +
-                        "SET balance = ?" +
-                        "WHERE account_from = ?;";
-
-
-//        updateTransfer(transfer)
-//        BigDecimal transferAmount = transfer.getAmount()
-
-
-        return jdbcTemplate.update(sql, sql2, transfer.getTransferAmount()) == 1;
-    }
 
     @Override
     public List<Transfer> getAllTransfers() {
@@ -57,18 +36,10 @@ public class JdbcTransferDao implements TransferDao{
     }
 
     @Override
-    public Transfer getTransferById(int transferId) {
-        Transfer transfer = null;
-        String sql =
-                "SELECT transfer_id, amount_to_transfer, account_to, account_from " +
-                        "FROM transfer" +
-                        "WHERE transfer_id = ?;";
-        SqlRowSet results = jdbcTemplate.queryForRowSet(sql, transferId);
-        if(results.next()) {
-            transfer = mapRowToTransfer(results);
-        }
-        return transfer;
+    public Transfer getTransferByAccount(String userName) {
+        return null;
     }
+
 
     private Transfer mapRowToTransfer(SqlRowSet rowSet) {
         Transfer transfer = new Transfer();

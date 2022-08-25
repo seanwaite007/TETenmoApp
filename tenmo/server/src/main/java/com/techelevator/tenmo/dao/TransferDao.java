@@ -6,14 +6,13 @@ import java.math.BigDecimal;
 import java.util.List;
 
 public interface TransferDao {
+    //TODO: CRUD operations for transfer
 
-    boolean sendMoney(Transfer transfer);
+
+
 
     List<Transfer> getAllTransfers();
 
-    Transfer getTransferById (int transferId);
-
-    Transfer getAccountFrom(int transferId);
-
+    Transfer getTransferByAccount (String userName);
 
 }

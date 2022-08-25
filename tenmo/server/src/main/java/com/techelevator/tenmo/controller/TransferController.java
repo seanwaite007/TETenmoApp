@@ -5,16 +5,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 
-//@RestController
-//@RequestMapping("/tenmo/transfer")
+@RestController
 public class TransferController {
-//
-//    private TransferDao transferDao;
-//
-//    public TransferController(TransferDao transferDao) {
-//        this.transferDao = transferDao;
-//    }
-//
+
 
 
 }
