@@ -93,7 +93,7 @@ public class JdbcAccountDao implements AccountDao {
                 success = true;
             }
         } else {
-           throw  new UpdateException("Sorry, transaction failed! ");
+           throw new UpdateException("Sorry, transaction failed! ");
         }
         return success;
     }
