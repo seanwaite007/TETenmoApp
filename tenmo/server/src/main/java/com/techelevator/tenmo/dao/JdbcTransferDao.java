@@ -15,6 +15,7 @@ import java.util.List;
 public class JdbcTransferDao implements TransferDao {
 
     private JdbcTemplate jdbcTemplate;
+    private AccountDao accountDao;
 
     public JdbcTransferDao(JdbcTemplate jdbcTemplate) {
 
@@ -25,14 +26,15 @@ public class JdbcTransferDao implements TransferDao {
     @Override
     public Transfer createTransfer(Transfer transfer) {
         String sql =
-                "INSERT INTO transfer (amount_to_transfer, account_to, account_from) " +
-                        "VALUES (?, ?, ?) " +
+                "INSERT INTO transfer (amount_to_transfer, account_to, account_from, account_to_user) " +
+                        "VALUES (?, ?, ?, ?) " +
                         "RETURNING transfer_id ;";
 
          Integer newId = jdbcTemplate.queryForObject(sql, Integer.class,
                  transfer.getTransferAmount(),
                  transfer.getAccount_To(),
-                 transfer.getAccount_from());
+                 transfer.getAccount_from(),
+                 transfer.getAccountToUser());
 
          transfer.setTransferId(newId);
 
@@ -43,36 +45,37 @@ public class JdbcTransferDao implements TransferDao {
     public List<Transfer> getAllTransfers() {
         List<Transfer> transfers = new ArrayList<Transfer>();
         String sql =
-                "SELECT transfer_id, amount_to_transfer, account_to, account_from " +
-                        "FROM transfer;";
+                "SELECT transfer_id, amount_to_transfer, account_to, account_from, account_to_user " +
+                        "FROM transfer ;";
         SqlRowSet results = jdbcTemplate.queryForRowSet(sql);
         while(results.next()) {
-            Transfer transfer = mapRowToTransfer(results);
-            transfers.add(transfer);
+            transfers.add(mapRowToTransfer(results));
         }
         return transfers;
     }
 
     @Override
-    public Transfer getTransferByAccount(String userName) {
-        Transfer transfer = null;
+    public List<Transfer> getTransfersByAccount(String userName) {
+        List<Transfer> transfers = new ArrayList<Transfer>();
+        Account account = accountDao.getAccountByUsername(userName);
+        account.getAccountId();
         String sql =
-                "SELECT * " +
-                        "FROM transfer JOIN account ON transfer.account_id = account.account_id" +
-                        "WHERE username  = ?";
+                "SELECT transfer_id, amount_to_transfer, account_to, account_from, account_to_user " +
+                        "FROM transfer JOIN account ON transfer.account_id = account.account_id " +
+                        "WHERE account_id = ?";
         SqlRowSet results = jdbcTemplate.queryForRowSet(sql, userName);
-        if(results.next()) {
-            transfer = mapRowToTransfer(results);
+        while(results.next()) {
+            transfers.add(mapRowToTransfer(results));
         }
-        return transfer;
+        return transfers;
     }
 
     @Override
     public Transfer getTransferById(int transferId) {
         Transfer transfer = null;
         String sql =
-                "SELECT transfer_id, amount_to_transfer, account_to, account_from " +
-                        "FROM transfer;" +
+                "SELECT transfer_id, amount_to_transfer, account_to, account_from, account_to_user " +
+                        "FROM transfer " +
                         "WHERE transfer_id = ?";
         SqlRowSet results = jdbcTemplate.queryForRowSet(sql, transferId);
         if(results.next()) {
@@ -81,14 +84,13 @@ public class JdbcTransferDao implements TransferDao {
         return transfer;
     }
 
-
     private Transfer mapRowToTransfer(SqlRowSet rowSet) {
         Transfer transfer = new Transfer();
         transfer.setTransferId(rowSet.getInt("transfer_id"));
-        transfer.setAccountId(rowSet.getInt("account_id"));
         transfer.setTransferAmount(rowSet.getBigDecimal("amount_to_transfer"));
         transfer.setAccount_from(rowSet.getInt("account_from"));
         transfer.setAccount_To(rowSet.getInt("account_to"));
+        transfer.setAccountToUser(rowSet.getString("account_to_user"));
         return transfer;
     }
 

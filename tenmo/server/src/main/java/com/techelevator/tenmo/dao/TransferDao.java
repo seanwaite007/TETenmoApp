@@ -13,7 +13,7 @@ public interface TransferDao {
 
     List<Transfer> getAllTransfers();
 
-    Transfer getTransferByAccount (String userName);
+    List<Transfer> getTransfersByAccount (String userName);
 
     Transfer getTransferById(int transferId);
 
