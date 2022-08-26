@@ -32,10 +32,10 @@ public class AccountController {
 
     @PreAuthorize("hasRole('USER')")
     @RequestMapping(path = "/account", method = RequestMethod.GET)
-    public Account getAccountByUsername (@PathVariable String userName)
+    public Account getAccountByUsername (Principal principal)
     throws UsernameNotFoundException {
 
-        return accountDao.getAccountByUsername(userName);
+        return accountDao.getAccountByUsername(principal.getName());
     }
 
     @PreAuthorize("hasRole('USER')")
