@@ -9,23 +9,8 @@ public class Transfer {
     private int account_To;
     private int account_from;
     private String transferStatus = "Approved";
-    private String accountToUser;
-
-    public String getTransferStatus() {
-        return transferStatus;
-    }
-
-    public void setTransferStatus(String transferStatus) {
-        this.transferStatus = transferStatus;
-    }
-
-    public String getAccountToUser() {
-        return accountToUser;
-    }
-
-    public void setAccountToUser(String accountToUser) {
-        this.accountToUser = accountToUser;
-    }
+    private String accountToUsername;
+    private  String accountFromUsername;
 
     public Transfer() {
 
@@ -38,6 +23,30 @@ public class Transfer {
         this.transferAmount = transferAmount;
         this.account_To = account_To;
         this.account_from = account_from;
+        this.transferStatus = transferStatus;
+    }
+
+    public String getAccountToUsername() {
+        return accountToUsername;
+    }
+
+    public void setAccountToUsername(String accountToUserName) {
+        this.accountToUsername = accountToUserName;
+    }
+
+    public String getAccountFromUsername() {
+        return accountFromUsername;
+    }
+
+    public void setAccountFromUsername(String accountFromUsername) {
+        this.accountFromUsername = accountFromUsername;
+    }
+
+    public String getTransferStatus() {
+        return transferStatus;
+    }
+
+    public void setTransferStatus(String transferStatus) {
         this.transferStatus = transferStatus;
     }
 

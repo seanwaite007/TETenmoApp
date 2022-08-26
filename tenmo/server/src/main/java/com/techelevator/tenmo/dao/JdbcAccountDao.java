@@ -1,6 +1,7 @@
 package com.techelevator.tenmo.dao;
 
 import com.techelevator.tenmo.model.Account;
+import com.techelevator.tenmo.security.UpdateException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -42,7 +43,6 @@ public class JdbcAccountDao implements AccountDao {
     }
 
 
-
     @Override
     public BigDecimal getBalanceByUserName(String username) {
 
@@ -64,7 +64,8 @@ public class JdbcAccountDao implements AccountDao {
     //TODO: THIS is how we update 2 at once, remember the catcards
 
     @Override
-    public boolean updateAccount(String userName, String userName2, BigDecimal amountToTransfer) {
+    public boolean updateAccount(String userName, String userName2, BigDecimal amountToTransfer)
+    throws UpdateException {
         boolean success = false;
 
         Account fromAccount = getAccountByUsername(userName);
@@ -72,7 +73,7 @@ public class JdbcAccountDao implements AccountDao {
 
         if (fromAccount.getBalance().compareTo(amountToTransfer) >= 0
                 && amountToTransfer.compareTo(BigDecimal.ZERO) > 0
-//                && fromAccount.equals(toAccount)
+                && !fromAccount.equals(toAccount)
         ) {
             fromAccount.setBalance(fromAccount.getBalance().subtract(amountToTransfer));
             toAccount.setBalance(toAccount.getBalance().add(amountToTransfer));
@@ -91,9 +92,11 @@ public class JdbcAccountDao implements AccountDao {
                 jdbcTemplate.update(sql2, toAccount.getBalance(), toAccount.getAccountId());
                 success = true;
             }
+        } else {
+           throw  new UpdateException("Sorry, transaction failed! ");
         }
-            return success;
-        }
+        return success;
+    }
 
 
         @Override

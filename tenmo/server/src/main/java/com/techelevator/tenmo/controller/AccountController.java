@@ -6,6 +6,7 @@ import com.techelevator.tenmo.dao.UserDao;
 import com.techelevator.tenmo.model.Account;
 import com.techelevator.tenmo.model.Transfer;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.parameters.P;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +18,7 @@ import java.util.List;
 
 
 @RestController
+@PreAuthorize("isAuthenticated()")
 public class AccountController {
 
     @Autowired
@@ -28,7 +30,7 @@ public class AccountController {
     @Autowired
     private UserDao userDao;
 
-
+    @PreAuthorize("hasRole('USER')")
     @RequestMapping(path = "/account", method = RequestMethod.GET)
     public Account getAccountByUsername (@PathVariable String userName)
     throws UsernameNotFoundException {
@@ -36,7 +38,7 @@ public class AccountController {
         return accountDao.getAccountByUsername(userName);
     }
 
-    // get balance by userName;
+    @PreAuthorize("hasRole('USER')")
    @RequestMapping(path = "/account/balance", method = RequestMethod.GET)
     public BigDecimal getBalance (Principal principal) {
 
@@ -44,7 +46,7 @@ public class AccountController {
     }
 
 
-    // update account
+    @PreAuthorize("hasRole('USER')")
    @RequestMapping(path = "/account/balance", method = RequestMethod.POST)
 
    public Transfer updateAccount (@RequestBody Transfer transfer,
@@ -54,21 +56,18 @@ public class AccountController {
        String sender = principal.getName();
        accountDao.getAccountByUsername(sender);
 
-       //this gives us the transfer count ID
-//       int transferAccount = transfer.getAccount_To();
-
-       //this gives us our receiving account username
-//       String recipient = userDao.getUserNameByAccountId(transferAccount);
-
        //this actually provides us with the account of the recipient
-       Account receivedAccount = accountDao.getAccountByUsername(transfer.getAccountToUser());
+       Account receivedAccount = accountDao.getAccountByUsername(transfer.getAccountToUsername());
        transfer.setAccount_To(receivedAccount.getAccountId());
        transfer.setAccount_from(accountDao.getAccountByUsername(sender).getAccountId());
 
+       // Set account from to logged in user
+       transfer.setAccountFromUsername(sender);
+       transfer.setAccountToUsername(transfer.getAccountToUsername());
+
        //So when this happens we update both accounts based on transferAMOUNT
 
-//       Transfer newTransfer = new Transfer();
-       if(accountDao.updateAccount(sender, transfer.getAccountToUser(), transfer.getTransferAmount())){
+       if(accountDao.updateAccount(sender, transfer.getAccountToUsername(), transfer.getTransferAmount())){
            transfer.setTransferId(transferDao.createTransfer(transfer).getTransferId());
        }
        return transfer;
@@ -76,13 +75,4 @@ public class AccountController {
 
 }
 
-//    Use Principal to see account balance
-//
-//    Test JdbcDao methods
-//
-//        3 tests per Jdbc method
-//
-//        {
-//        "transferAmount" : 200,
-//        "accountToUser" : "sean"
-//        }
+
