@@ -6,7 +6,9 @@ import com.techelevator.tenmo.model.User;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import javax.sql.DataSource;
 import java.util.ArrayList;
@@ -16,14 +18,13 @@ public class JdbcUserDaoTests extends BaseDaoTests{
 
     private JdbcUserDao sut;
     private User testUser;
-    private static final User USER_1 = new User(1010, "Joe", "123", "USER");
-    private static final User USER_2 = new User(1011, "Joey", "1234", "USER");
 
     @Before
     public void setup() {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
         sut = new JdbcUserDao(jdbcTemplate);
         testUser = new User(0, "TestUsername", "TestPassword", "USER");
+
     }
 
     @Test
@@ -35,12 +36,39 @@ public class JdbcUserDaoTests extends BaseDaoTests{
     }
 
     @Test
-    public void findALlUsersTestPasses() {
-        List<User> testUsers = new ArrayList<User>();
-        testUsers.add(USER_1);
-        testUsers.add(USER_2);
+    public void findIdByUsername(){
+        int actualId = sut.findIdByUsername("bob");
+        int expectedId = 1001;
 
+        Assert.assertEquals(actualId, expectedId);
     }
 
+
+    @Test(expected = UsernameNotFoundException.class)
+    public void findIdByUsernameNameNotFound(){
+        sut.findByUsername("john");
+    }
+
+    @Test
+    public void listAllUsers(){
+       int actualListSize =  sut.findAll().size();
+       int expectedListSize = 2;
+
+        Assert.assertEquals(actualListSize, expectedListSize);
+    }
+
+    @Test
+    public void findByUsername(){
+        String testUser = String.valueOf(sut.findByUsername("bob"));
+
+        String expected = "User{id=1001, username='bob', activated=true, authorities=[Authority{name=ROLE_USER}]}";
+
+        Assert.assertEquals(testUser,expected);
+
+    }
+    @Test(expected = UsernameNotFoundException.class)
+    public void findByUsernameNameNotFound(){
+        sut.findByUsername("john");
+    }
 
 }

@@ -22,10 +22,6 @@ public class JdbcAccountDao implements AccountDao {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    //TODO: CRUD METHODS JDBC
-
-    //username, amountTransferred UPDATE 1 method
-
 
     @Override
     public Account getAccountByUsername(String username) {
@@ -38,13 +34,11 @@ public class JdbcAccountDao implements AccountDao {
         if (rowSet.next()) {
             return mapRowToAccount(rowSet);
         }
-        ;
         throw new UsernameNotFoundException("User " + username + " was not found.");
     }
 
-
     @Override
-    public BigDecimal getBalanceByUserName(String username) {
+    public BigDecimal getBalanceByUserName(String username) throws NullPointerException {
 
         Account account = null;
 
@@ -59,23 +53,23 @@ public class JdbcAccountDao implements AccountDao {
         return account.getBalance();
     }
 
-
-    //TODO: Method that will be called to update accounts, this is our one method, it will take in a user and the amount
-    //TODO: THIS is how we update 2 at once, remember the catcards
-
     @Override
     public boolean updateAccount(String userName, String userName2, BigDecimal amountToTransfer)
-    throws UpdateException {
+            throws UsernameNotFoundException {
         boolean success = false;
 
         Account fromAccount = getAccountByUsername(userName);
         Account toAccount = getAccountByUsername(userName2);
 
-        if (fromAccount.getBalance().compareTo(amountToTransfer) >= 0
-                && amountToTransfer.compareTo(BigDecimal.ZERO) > 0
-                && !fromAccount.equals(toAccount)
-        ) {
+        if (fromAccount.getBalance().compareTo(amountToTransfer) < 0)
+            throw new UpdateException("Sorry you don't enough TE Bucks");
+        if (amountToTransfer.compareTo(BigDecimal.ZERO) <= 0)
+            throw new UpdateException("Sorry you can't send 0 TE Bucks");
+        if (fromAccount.equals(toAccount))
+            throw new UpdateException("Duplicate account error");
+
             fromAccount.setBalance(fromAccount.getBalance().subtract(amountToTransfer));
+
             toAccount.setBalance(toAccount.getBalance().add(amountToTransfer));
 
             String sql = "UPDATE account" +
@@ -86,39 +80,19 @@ public class JdbcAccountDao implements AccountDao {
                     " SET balance = ?" +
                     " WHERE account_id = ?; ";
 
-            if (getAccountByUsername(userName) != null
-                    && getAccountByUsername(userName2) != null) {
                 jdbcTemplate.update(sql, fromAccount.getBalance(), fromAccount.getAccountId());
                 jdbcTemplate.update(sql2, toAccount.getBalance(), toAccount.getAccountId());
                 success = true;
-            }
-        } else {
-           throw new UpdateException("Sorry, transaction failed! ");
-        }
-        return success;
+
+             return success;
     }
 
-
-        @Override
-        public List<Account> getAllAccounts () {
-            List<Account> accounts = new ArrayList<Account>();
-            String sql =
-                    "SELECT * " +
-                            "FROM account ;";
-            SqlRowSet rowSet = jdbcTemplate.queryForRowSet(sql);
-            while (rowSet.next()) {
-                accounts.add(mapRowToAccount(rowSet));
-            }
-            return accounts;
-        }
-
-
-        private Account mapRowToAccount (SqlRowSet rowSet){
-            Account account = new Account();
-            account.setAccountId(rowSet.getInt("account_id"));
-            account.setUserId(rowSet.getInt("user_id"));
-            account.setBalance(rowSet.getBigDecimal("balance"));
-            return account;
-        }
-
+    private Account mapRowToAccount(SqlRowSet rowSet) {
+        Account account = new Account();
+        account.setAccountId(rowSet.getInt("account_id"));
+        account.setUserId(rowSet.getInt("user_id"));
+        account.setBalance(rowSet.getBigDecimal("balance"));
+        return account;
     }
+
+}

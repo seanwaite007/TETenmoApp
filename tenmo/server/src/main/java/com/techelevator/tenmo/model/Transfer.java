@@ -13,17 +13,19 @@ public class Transfer {
     private  String accountFromUsername;
 
     public Transfer() {
-
     }
 
     public Transfer(int transferId, BigDecimal transferAmount,
-                    int account_To, int account_from, String transferStatus
+                    int account_To, int account_from, String transferStatus, String accountToUsername, String accountFromUsername
     ) {
         this.transferId = transferId;
         this.transferAmount = transferAmount;
         this.account_To = account_To;
         this.account_from = account_from;
         this.transferStatus = transferStatus;
+        this.accountToUsername = accountToUsername;
+        this.accountFromUsername = accountFromUsername;
+
     }
 
     public String getAccountToUsername() {
@@ -80,5 +82,11 @@ public class Transfer {
 
     public void setTransferAmount(BigDecimal transferAmount) {
         this.transferAmount = transferAmount;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+            return this.transferId == ((Transfer)obj).transferId;
+
     }
 }

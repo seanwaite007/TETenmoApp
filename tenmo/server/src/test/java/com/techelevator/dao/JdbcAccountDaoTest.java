@@ -4,11 +4,15 @@ import com.techelevator.tenmo.dao.JdbcAccountDao;
 import com.techelevator.tenmo.dao.JdbcUserDao;
 import com.techelevator.tenmo.dao.UserDao;
 import com.techelevator.tenmo.model.Account;
+import com.techelevator.tenmo.model.Transfer;
 import com.techelevator.tenmo.model.User;
+import com.techelevator.tenmo.security.UpdateException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.data.relational.core.sql.Update;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.math.BigDecimal;
 
@@ -26,12 +30,6 @@ public class JdbcAccountDaoTest extends BaseDaoTests{
     private User testUser2;
 
 
-    private static final Account ACCOUNT_1 = new Account(2001,
-            1001, BigDecimal.valueOf(1000));
-    private static final Account ACCOUNT_2 = new Account(2002,
-            1002, BigDecimal.valueOf(1000));
-
-
     @Before
     public void setup() {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
@@ -42,9 +40,9 @@ public class JdbcAccountDaoTest extends BaseDaoTests{
         testUser2 = userDao.findByUsername("testUser2");
 
         sut = new JdbcAccountDao(jdbcTemplate);
-        testAccount = new Account(0, 0, BigDecimal.valueOf(1000));
     }
 
+    //HappyPathCases
     @Test
     public void updateAccountTestSuccess() {
         // Arrange
@@ -61,14 +59,8 @@ public class JdbcAccountDaoTest extends BaseDaoTests{
         Assert.assertEquals(toAccount, expectedValue2);
     }
 
-    @Test
-    public void getAllAccountsCheckSize() {
-        int actualListSize = sut.getAllAccounts().size();
-        int expectedSize = 2;
 
-        Assert.assertEquals(actualListSize, expectedSize);
-    }
-
+    //GetBalance HappyPath
     @Test
     public void getBalanceByUsername() {
         BigDecimal testBalance = sut.getBalanceByUserName(testUser.getUsername());
@@ -81,32 +73,66 @@ public class JdbcAccountDaoTest extends BaseDaoTests{
         Assert.assertEquals(testBalance2, actualBalance2);
     }
 
+    //GetBalance non-existent name
+    @Test(expected = NullPointerException.class)
+    public void getBalanceByUsernameNotFound(){
+        sut.getBalanceByUserName("Invalid Name");
+    }
+
+    //Edge cases for update account
+    @Test(expected = UpdateException.class)
+    public void updateAccountTestFailNotEnoughTEBucks() {
+        // Arrange
+        sut.updateAccount(testUser.getUsername(), testUser2.getUsername(), new BigDecimal("10000"));
+        //Throw
+
+    }
+    @Test(expected = UpdateException.class)
+    public void updateAccountTestFailSameAccount() {
+        // Arrange
+        sut.updateAccount(testUser.getUsername(), testUser.getUsername(), new BigDecimal("100"));
+        //Throw
+
+    }
+    @Test(expected = UpdateException.class)
+    public void updateAccountTestFailZeroTransfer() {
+        // Arrange
+        sut.updateAccount(testUser.getUsername(), testUser2.getUsername(), new BigDecimal("0"));
+        //Throw
+
+    }
+
+    @Test(expected = UsernameNotFoundException.class)
+    public void updateAccountTestFailNullUser() {
+        // Arrange
+        sut.updateAccount(testUser.getUsername(), null, new BigDecimal("10000"));
+        //Throw
+
+    }
+
+    @Test(expected = UsernameNotFoundException.class)
+    public void getAccountByUsernameInvalidName(){
+        sut.getAccountByUsername("InvalidName");
+    }
+
+
     @Test
     public void getAccountByUsername() {
         Account testAccount = sut.getAccountByUsername(testUser.getUsername());
-        Account actualAccount = ;
 
-        Assert.assertEquals(testAccount, );
+        Account actualAccount = sut.getAccountByUsername("testUser");
+
+        assertAccountsMatch(testAccount, actualAccount);
 
     }
 
+    private void assertAccountsMatch(Account expected, Account actual) {
+        Assert.assertEquals(expected.getAccountId(), actual.getAccountId());
+        Assert.assertEquals(expected.getUserId(), actual.getUserId());
+        Assert.assertEquals(expected.getBalance(), actual.getBalance());
 
-    // Ask about testing when throwing an exception
-    @Test
-    public void updateAccountTestFailNotEnoughFunds() {
-        // Arrange
-        sut.updateAccount(testUser.getUsername(),
-                testUser2.getUsername(), new BigDecimal("10000"));
-
-        BigDecimal fromValue = sut.getBalanceByUserName(testUser.getUsername());
-        BigDecimal expectedValue = new BigDecimal("990.00");
-
-        BigDecimal toAccount = sut.getBalanceByUserName(testUser2.getUsername());
-        BigDecimal expectedValue2 = new BigDecimal("1010.00");
-
-        Assert.assertEquals(fromValue, expectedValue);
-        Assert.assertEquals(toAccount, expectedValue2);
     }
+
 
 
 }

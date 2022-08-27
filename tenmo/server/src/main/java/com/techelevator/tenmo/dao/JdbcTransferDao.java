@@ -1,12 +1,10 @@
 package com.techelevator.tenmo.dao;
 
-import com.techelevator.tenmo.model.Account;
 import com.techelevator.tenmo.model.Transfer;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,8 +24,9 @@ public class JdbcTransferDao implements TransferDao {
     @Override
     public Transfer createTransfer(Transfer transfer) {
         String sql =
-                "INSERT INTO transfer (amount_to_transfer, account_to, account_from, account_to_username, account_from_username) " +
-                        "VALUES (?, ?, ?, ?, ?) " +
+                "INSERT INTO transfer (amount_to_transfer, account_to, account_from, account_to_username, " +
+                        "account_from_username, transfer_status) " +
+                        "VALUES (?, ?, ?, ?, ?, ?) " +
                         "RETURNING transfer_id ;";
 
          Integer newId = jdbcTemplate.queryForObject(sql, Integer.class,
@@ -35,7 +34,8 @@ public class JdbcTransferDao implements TransferDao {
                  transfer.getAccount_To(),
                  transfer.getAccount_from(),
                  transfer.getAccountToUsername(),
-                 transfer.getAccountFromUsername());
+                 transfer.getAccountFromUsername(),
+                 transfer.getTransferStatus());
 
          transfer.setTransferId(newId);
 
@@ -43,31 +43,18 @@ public class JdbcTransferDao implements TransferDao {
     }
 
     @Override
-    public List<Transfer> getAllTransfers() {
-        List<Transfer> transfers = new ArrayList<Transfer>();
-        String sql =
-                "SELECT transfer_id, amount_to_transfer, account_to, account_from, account_to_username, account_from_username " +
-                        "FROM transfer ;";
-        SqlRowSet results = jdbcTemplate.queryForRowSet(sql);
-        while(results.next()) {
-            transfers.add(mapRowToTransfer(results));
-        }
-        return transfers;
-    }
-
-    @Override
     public List<Transfer> getTransfersByAccount(String userName) {
         List<Transfer> transfers = new ArrayList<Transfer>();
 
         String sql =
-                "SELECT transfer_id, amount_to_transfer, account_to, account_from, account_to_username, account_from_username " +
+                "SELECT transfer_id, amount_to_transfer, account_to, account_from, account_to_username, account_from_username, transfer_status " +
                         "FROM transfer " +
                         "JOIN account ON transfer.account_from = account.account_id " +
                         "JOIN tenmo_user ON tenmo_user.user_id = account.user_id " +
                         "WHERE username = ?";
 
         String sql2 =
-                "SELECT transfer_id, amount_to_transfer, account_to, account_from, account_to_username, account_from_username " +
+                "SELECT transfer_id, amount_to_transfer, account_to, account_from, account_to_username, account_from_username, transfer_status " +
                         "FROM transfer " +
                         "JOIN account ON transfer.account_to = account.account_id " +
                         "JOIN tenmo_user ON tenmo_user.user_id = account.user_id " +
@@ -86,7 +73,7 @@ public class JdbcTransferDao implements TransferDao {
     public Transfer getTransferById(int transferId) {
         Transfer transfer = null;
         String sql =
-                "SELECT transfer_id, amount_to_transfer, account_to, account_from, account_to_username, account_from_username " +
+                "SELECT transfer_id, amount_to_transfer, account_to, account_from, account_to_username, account_from_username, transfer_status " +
                         "FROM transfer " +
                         "WHERE transfer_id = ?";
         SqlRowSet results = jdbcTemplate.queryForRowSet(sql, transferId);
@@ -96,6 +83,12 @@ public class JdbcTransferDao implements TransferDao {
         return transfer;
     }
 
+
+
+
+
+
+
     private Transfer mapRowToTransfer(SqlRowSet rowSet) {
         Transfer transfer = new Transfer();
         transfer.setTransferId(rowSet.getInt("transfer_id"));
@@ -104,6 +97,7 @@ public class JdbcTransferDao implements TransferDao {
         transfer.setAccount_To(rowSet.getInt("account_to"));
         transfer.setAccountToUsername(rowSet.getString("account_to_username"));
         transfer.setAccountFromUsername(rowSet.getString("account_from_username"));
+        transfer.setTransferStatus(rowSet.getString("transferStatus"));
         return transfer;
     }
 
