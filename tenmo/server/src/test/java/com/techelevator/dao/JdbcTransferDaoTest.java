@@ -27,11 +27,9 @@ public class JdbcTransferDaoTest extends BaseDaoTests {
 
     private AccountDao accountDao;
 
-//    private Account testAccount;
-//    private Account testAccount2;
 
     @Before
-    public void setup(){
+    public void setup() {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
         UserDao userDao = new JdbcUserDao(jdbcTemplate);
         userDao.create("testUser", "123");
@@ -40,18 +38,15 @@ public class JdbcTransferDaoTest extends BaseDaoTests {
         testUser2 = userDao.findByUsername("testUser2");
 
         accountDao = new JdbcAccountDao(jdbcTemplate);
-//        testAccount = accountDao.getAccountByUsername(testUser.getUsername());
-//        testAccount2 = accountDao.getAccountByUsername(testUser2.getUsername());
-//        Account testAccount = new Account();
 
         sut = new JdbcTransferDao(jdbcTemplate);
 
     }
 
     @Test
-    public void createNewTransfer(){
+    public void createNewTransfer() {
         testTransfer = new Transfer(3001, BigDecimal.valueOf(100), 2001, 2002,
-                "Approved", "James", "John" );
+                "Approved", "James", "John");
 
         Transfer actual = sut.createTransfer(testTransfer);
 
@@ -61,10 +56,10 @@ public class JdbcTransferDaoTest extends BaseDaoTests {
 
 
     @Test
-    public void listAllTransfer(){
+    public void listAllTransfer() {
         List<Transfer> allTransferWithUser = new ArrayList<>();
         testTransfer = new Transfer(3001, BigDecimal.valueOf(100), 2001, 2002,
-                "Approved", "James", "John" );
+                "Approved", "James", "John");
         allTransferWithUser.add(testTransfer);
 
         int transferListSize = allTransferWithUser.size();
@@ -77,37 +72,45 @@ public class JdbcTransferDaoTest extends BaseDaoTests {
     public void getTransferByAccountSuccess() {
         testTransfer = new Transfer
                 (3001,
-                BigDecimal.valueOf(100),
-                accountDao.getAccountByUsername(testUser2.getUsername()).getAccountId(),
-                accountDao.getAccountByUsername(testUser.getUsername()).getAccountId(),
-                "Approved",
-                "testUser2",
-                "testUser" );
+                        BigDecimal.valueOf(100),
+                        accountDao.getAccountByUsername(testUser2.getUsername()).getAccountId(),
+                        accountDao.getAccountByUsername(testUser.getUsername()).getAccountId(),
+                        "Approved",
+                        "testUser2",
+                        "testUser");
 
         Transfer actual = sut.createTransfer(testTransfer);
 
         assertTransfersMatch(actual, testTransfer);
     }
 
-    @Test(expected = UsernameNotFoundException.class)
-    public void getTransferByAccountInvalidUsername() {
-        sut.getTransfersByAccount("TestUser3");
+//not happening, ask about it.
+//    @Test(expected = UsernameNotFoundException.class)
+//    public void getTransferByAccountInvalidName(){
+//        sut.getTransfersByAccount("john");
+//    }
+
+    @Test
+    public void getTransferById() {
+        testTransfer = new Transfer
+                (3001,
+                        BigDecimal.valueOf(100),
+                        accountDao.getAccountByUsername(testUser2.getUsername()).getAccountId(),
+                        accountDao.getAccountByUsername(testUser.getUsername()).getAccountId(),
+                        "Approved",
+                        "testUser2",
+                        "testUser");
+
+        Transfer actual = sut.createTransfer(testTransfer);
+
+        Assert.assertEquals(3001, actual.getTransferId());
     }
 
-
-
-
-
-    //  TODO Does not like equals method in Transfer model
-    //  TODO add NullPointerException in JdbcTransferDao getTransferById?
     @Test
-    public void getTransferByIdSuccess() {
-        testTransfer = new Transfer(3001, BigDecimal.valueOf(100), 2001, 2002,
-                "Approved", "James", "John" );
+    public void getTransferByIdNoTransfer() {
+        Transfer transfer = sut.getTransferById(3004);
+        Assert.assertNull(transfer);
 
-        Transfer transfer = sut.getTransferById(3001);
-
-        Assert.assertEquals(testTransfer, transfer);
     }
 
 

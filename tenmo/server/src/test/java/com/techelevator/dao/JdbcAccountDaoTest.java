@@ -18,7 +18,7 @@ import java.math.BigDecimal;
 
 import static org.junit.Assert.*;
 
-public class JdbcAccountDaoTest extends BaseDaoTests{
+public class JdbcAccountDaoTest extends BaseDaoTests {
 
 
     private Account testAccount;
@@ -75,7 +75,7 @@ public class JdbcAccountDaoTest extends BaseDaoTests{
 
     //GetBalance non-existent name
     @Test(expected = NullPointerException.class)
-    public void getBalanceByUsernameNotFound(){
+    public void getBalanceByUsernameNotFound() {
         sut.getBalanceByUserName("Invalid Name");
     }
 
@@ -87,6 +87,7 @@ public class JdbcAccountDaoTest extends BaseDaoTests{
         //Throw
 
     }
+
     @Test(expected = UpdateException.class)
     public void updateAccountTestFailSameAccount() {
         // Arrange
@@ -94,6 +95,7 @@ public class JdbcAccountDaoTest extends BaseDaoTests{
         //Throw
 
     }
+
     @Test(expected = UpdateException.class)
     public void updateAccountTestFailZeroTransfer() {
         // Arrange
@@ -111,7 +113,7 @@ public class JdbcAccountDaoTest extends BaseDaoTests{
     }
 
     @Test(expected = UsernameNotFoundException.class)
-    public void getAccountByUsernameInvalidName(){
+    public void getAccountByUsernameInvalidName() {
         sut.getAccountByUsername("InvalidName");
     }
 
@@ -132,7 +134,6 @@ public class JdbcAccountDaoTest extends BaseDaoTests{
         Assert.assertEquals(expected.getBalance(), actual.getBalance());
 
     }
-
 
 
 }

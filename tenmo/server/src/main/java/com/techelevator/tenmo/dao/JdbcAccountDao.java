@@ -68,23 +68,23 @@ public class JdbcAccountDao implements AccountDao {
         if (fromAccount.equals(toAccount))
             throw new UpdateException("Duplicate account error");
 
-            fromAccount.setBalance(fromAccount.getBalance().subtract(amountToTransfer));
+        fromAccount.setBalance(fromAccount.getBalance().subtract(amountToTransfer));
 
-            toAccount.setBalance(toAccount.getBalance().add(amountToTransfer));
+        toAccount.setBalance(toAccount.getBalance().add(amountToTransfer));
 
-            String sql = "UPDATE account" +
-                    " SET balance = ?" +
-                    " WHERE account_id = ?; ";
+        String sql = "UPDATE account" +
+                " SET balance = ?" +
+                " WHERE account_id = ?; ";
 
-            String sql2 = "UPDATE account" +
-                    " SET balance = ?" +
-                    " WHERE account_id = ?; ";
+        String sql2 = "UPDATE account" +
+                " SET balance = ?" +
+                " WHERE account_id = ?; ";
 
-                jdbcTemplate.update(sql, fromAccount.getBalance(), fromAccount.getAccountId());
-                jdbcTemplate.update(sql2, toAccount.getBalance(), toAccount.getAccountId());
-                success = true;
+        jdbcTemplate.update(sql, fromAccount.getBalance(), fromAccount.getAccountId());
+        jdbcTemplate.update(sql2, toAccount.getBalance(), toAccount.getAccountId());
+        success = true;
 
-             return success;
+        return success;
     }
 
     private Account mapRowToAccount(SqlRowSet rowSet) {

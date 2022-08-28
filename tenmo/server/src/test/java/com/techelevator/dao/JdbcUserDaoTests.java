@@ -14,7 +14,7 @@ import javax.sql.DataSource;
 import java.util.ArrayList;
 import java.util.List;
 
-public class JdbcUserDaoTests extends BaseDaoTests{
+public class JdbcUserDaoTests extends BaseDaoTests {
 
     private JdbcUserDao sut;
     private User testUser;
@@ -29,14 +29,14 @@ public class JdbcUserDaoTests extends BaseDaoTests{
 
     @Test
     public void createNewUser() {
-        boolean userCreated = sut.create("TEST_USER","test_password");
+        boolean userCreated = sut.create("TEST_USER", "test_password");
         Assert.assertTrue(userCreated);
         User user = sut.findByUsername("TEST_USER");
         Assert.assertEquals("TEST_USER", user.getUsername());
     }
 
     @Test
-    public void findIdByUsername(){
+    public void findIdByUsername() {
         int actualId = sut.findIdByUsername("bob");
         int expectedId = 1001;
 
@@ -45,29 +45,31 @@ public class JdbcUserDaoTests extends BaseDaoTests{
 
 
     @Test(expected = UsernameNotFoundException.class)
-    public void findIdByUsernameNameNotFound(){
+    public void findIdByUsernameNameNotFound() {
         sut.findByUsername("john");
     }
 
     @Test
-    public void listAllUsers(){
-       int actualListSize =  sut.findAll().size();
-       int expectedListSize = 2;
+    public void listAllUsers() {
+        int actualListSize = sut.findAll().size();
+        int expectedListSize = 2;
 
         Assert.assertEquals(actualListSize, expectedListSize);
     }
 
     @Test
-    public void findByUsername(){
+    public void findByUsername() {
         String testUser = String.valueOf(sut.findByUsername("bob"));
 
         String expected = "User{id=1001, username='bob', activated=true, authorities=[Authority{name=ROLE_USER}]}";
 
-        Assert.assertEquals(testUser,expected);
+        Assert.assertEquals(testUser, expected);
 
     }
+
+
     @Test(expected = UsernameNotFoundException.class)
-    public void findByUsernameNameNotFound(){
+    public void findByUsernameNameNotFound() {
         sut.findByUsername("john");
     }
 

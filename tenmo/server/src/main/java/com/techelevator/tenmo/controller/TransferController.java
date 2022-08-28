@@ -7,6 +7,7 @@ import com.techelevator.tenmo.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -35,15 +36,18 @@ public class TransferController {
     @ResponseStatus(HttpStatus.FOUND)
     @RequestMapping(path = "/account/transfer", method = RequestMethod.GET)
     public List<Transfer> getListOfTransfersByAccount(Principal principal) {
-
-        return transferDao.getTransfersByAccount(principal.getName());
+        try {
+            return transferDao.getTransfersByAccount(principal.getName());
+        } catch (RuntimeException e) {
+            throw new UsernameNotFoundException("Invalid user");
+        }
     }
 
     @PreAuthorize("hasRole('USER')")
     @ResponseStatus(HttpStatus.FOUND)
     @RequestMapping(path = "/users", method = RequestMethod.GET)
     public List<User> getListOfUsers() {
-        return  userDao.findAll();
+        return userDao.findAll();
     }
 
 }

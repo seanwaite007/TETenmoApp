@@ -10,7 +10,7 @@ public class Transfer {
     private int account_from;
     private String transferStatus = "Approved";
     private String accountToUsername;
-    private  String accountFromUsername;
+    private String accountFromUsername;
 
     public Transfer() {
     }
@@ -26,7 +26,6 @@ public class Transfer {
         this.transferStatus = transferStatus;
         this.accountToUsername = accountToUsername;
         this.accountFromUsername = accountFromUsername;
-
     }
 
     public String getAccountToUsername() {
@@ -87,7 +86,7 @@ public class Transfer {
 
     @Override
     public boolean equals(Object obj) {
-            return this.transferId == ((Transfer)obj).transferId;
+        return this.transferId == ((Transfer) obj).transferId;
 
     }
 }

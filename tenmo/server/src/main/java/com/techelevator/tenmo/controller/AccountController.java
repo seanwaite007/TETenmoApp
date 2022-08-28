@@ -34,47 +34,44 @@ public class AccountController {
     @PreAuthorize("hasRole('USER')")
     @ResponseStatus(HttpStatus.FOUND)
     @RequestMapping(path = "/account", method = RequestMethod.GET)
-    public Account getAccountByUsername (Principal principal)
-    throws UsernameNotFoundException {
-
+    public Account getAccountByUsername(Principal principal)
+            throws UsernameNotFoundException {
         return accountDao.getAccountByUsername(principal.getName());
     }
 
     @PreAuthorize("hasRole('USER')")
     @ResponseStatus(HttpStatus.FOUND)
-   @RequestMapping(path = "/account/balance", method = RequestMethod.GET)
-    public BigDecimal getBalance (Principal principal) {
-
+    @RequestMapping(path = "/account/balance", method = RequestMethod.GET)
+    public BigDecimal getBalance(Principal principal) {
         return accountDao.getBalanceByUserName(principal.getName());
     }
 
     @PreAuthorize("hasRole('USER')")
     @ResponseStatus(HttpStatus.CREATED)
-   @RequestMapping(path = "/account/balance", method = RequestMethod.POST)
-   public Transfer updateAccount (@RequestBody Transfer transfer, Principal principal)
-   {
-       //prinicpal is the logged in users info, transfer is requesting from postman and we fill in from there
+    @RequestMapping(path = "/account/balance", method = RequestMethod.POST)
+    public Transfer updateAccount(@RequestBody Transfer transfer, Principal principal) {
+        //prinicpal is the logged in users info, transfer is requesting from postman and we fill in from there
 
-       //Account From/Principal
-       String sender = principal.getName();
-       accountDao.getAccountByUsername(sender);
-       transfer.setAccount_from(accountDao.getAccountByUsername(sender).getAccountId());
-       transfer.setAccountFromUsername(sender);
+        //Account From/Principal
+        String sender = principal.getName();
+        accountDao.getAccountByUsername(sender);
+        transfer.setAccount_from(accountDao.getAccountByUsername(sender).getAccountId());
+        transfer.setAccountFromUsername(sender);
 
-       //Account Sent/Transfer
-       Account receivedAccount = accountDao.getAccountByUsername(transfer.getAccountToUsername());
-       transfer.setAccount_To(receivedAccount.getAccountId());
-       transfer.setAccountToUsername(transfer.getAccountToUsername());
+        //Account Sent/Transfer
+        Account receivedAccount = accountDao.getAccountByUsername(transfer.getAccountToUsername());
+        transfer.setAccount_To(receivedAccount.getAccountId());
+        transfer.setAccountToUsername(transfer.getAccountToUsername());
 
-       if(accountDao.updateAccount(sender, transfer.getAccountToUsername(), transfer.getTransferAmount())){
-           transfer.setTransferId(transferDao.createTransfer(transfer).getTransferId());
+        if (accountDao.updateAccount(sender, transfer.getAccountToUsername(), transfer.getTransferAmount())) {
+            transfer.setTransferId(transferDao.createTransfer(transfer).getTransferId());
 
-       }else if(!accountDao.updateAccount(sender, transfer.getAccountToUsername(), transfer.getTransferAmount())){
-           transfer.setTransferId(transferDao.createTransfer(transfer).getTransferId());
+        } else if (!accountDao.updateAccount(sender, transfer.getAccountToUsername(), transfer.getTransferAmount())) {
+            transfer.setTransferId(transferDao.createTransfer(transfer).getTransferId());
         }
 
-       return transfer;
-   }
+        return transfer;
+    }
 
 }
 
