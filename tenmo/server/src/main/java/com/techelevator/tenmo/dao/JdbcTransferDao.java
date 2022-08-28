@@ -3,6 +3,7 @@ package com.techelevator.tenmo.dao;
 import com.techelevator.tenmo.model.Transfer;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -46,27 +47,32 @@ public class JdbcTransferDao implements TransferDao {
     public List<Transfer> getTransfersByAccount(String userName) {
         List<Transfer> transfers = new ArrayList<Transfer>();
 
-        String sql =
-                "SELECT transfer_id, amount_to_transfer, account_to, account_from, account_to_username, account_from_username, transfer_status " +
-                        "FROM transfer " +
-                        "JOIN account ON transfer.account_from = account.account_id " +
-                        "JOIN tenmo_user ON tenmo_user.user_id = account.user_id " +
-                        "WHERE username = ?";
+        try {
+            String sql =
+                    "SELECT transfer_id, amount_to_transfer, account_to, account_from, " +
+                            "account_to_username, account_from_username, transfer_status " +
+                            "FROM transfer " +
+                            "JOIN account ON transfer.account_from = account.account_id " +
+                            "JOIN tenmo_user ON tenmo_user.user_id = account.user_id " +
+                            "WHERE username = ?;";
 
-        String sql2 =
-                "SELECT transfer_id, amount_to_transfer, account_to, account_from, account_to_username, account_from_username, transfer_status " +
-                        "FROM transfer " +
-                        "JOIN account ON transfer.account_to = account.account_id " +
-                        "JOIN tenmo_user ON tenmo_user.user_id = account.user_id " +
-                        "WHERE username = ?";
+            String sql2 =
+                    "SELECT transfer_id, amount_to_transfer, account_to, account_from, " +
+                            "account_to_username, account_from_username, transfer_status " +
+                            "FROM transfer " +
+                            "JOIN account ON transfer.account_to = account.account_id " +
+                            "JOIN tenmo_user ON tenmo_user.user_id = account.user_id " +
+                            "WHERE username = ?;";
 
-        SqlRowSet results = jdbcTemplate.queryForRowSet(sql, userName);
-        SqlRowSet results2 = jdbcTemplate.queryForRowSet(sql2, userName);
-        while(results.next() && results2.next()) {
-            transfers.add(mapRowToTransfer(results));
-            transfers.add(mapRowToTransfer(results2));
-        }
-        return transfers;
+            SqlRowSet results = jdbcTemplate.queryForRowSet(sql, userName);
+            SqlRowSet results2 = jdbcTemplate.queryForRowSet(sql2, userName);
+            while (results.next() && results2.next()) {
+                transfers.add(mapRowToTransfer(results));
+                transfers.add(mapRowToTransfer(results2));
+                }
+            } catch(UsernameNotFoundException e){
+            System.out.println("Invalid username!");;
+        } return transfers;
     }
 
     @Override
@@ -75,7 +81,7 @@ public class JdbcTransferDao implements TransferDao {
         String sql =
                 "SELECT transfer_id, amount_to_transfer, account_to, account_from, account_to_username, account_from_username, transfer_status " +
                         "FROM transfer " +
-                        "WHERE transfer_id = ?";
+                        "WHERE transfer_id = ?;";
         SqlRowSet results = jdbcTemplate.queryForRowSet(sql, transferId);
         if(results.next()) {
             transfer = mapRowToTransfer(results);

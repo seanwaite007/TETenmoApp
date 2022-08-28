@@ -28,7 +28,7 @@ public class JdbcAccountDao implements AccountDao {
 
         String sql = "SELECT account.user_id, account_id, balance FROM account" +
                 " JOIN tenmo_user ON account.user_id = tenmo_user.user_id " +
-                " WHERE username = ? ";
+                " WHERE username = ?;";
 
         SqlRowSet rowSet = jdbcTemplate.queryForRowSet(sql, username);
         if (rowSet.next()) {
@@ -44,7 +44,7 @@ public class JdbcAccountDao implements AccountDao {
 
         String sql = "SELECT * FROM account " +
                 " JOIN tenmo_user ON tenmo_user.user_id = account.user_id " +
-                " WHERE username = ? ";
+                " WHERE username = ?;";
 
         SqlRowSet rowSet = jdbcTemplate.queryForRowSet(sql, username);
         if (rowSet.next()) {

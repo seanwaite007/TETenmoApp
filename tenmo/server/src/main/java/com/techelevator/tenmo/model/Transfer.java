@@ -16,7 +16,8 @@ public class Transfer {
     }
 
     public Transfer(int transferId, BigDecimal transferAmount,
-                    int account_To, int account_from, String transferStatus, String accountToUsername, String accountFromUsername
+                    int account_To, int account_from, String transferStatus,
+                    String accountToUsername, String accountFromUsername
     ) {
         this.transferId = transferId;
         this.transferAmount = transferAmount;

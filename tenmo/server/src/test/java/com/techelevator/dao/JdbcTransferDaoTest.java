@@ -8,6 +8,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import javax.swing.*;
 import java.math.BigDecimal;
@@ -26,6 +27,9 @@ public class JdbcTransferDaoTest extends BaseDaoTests {
 
     private AccountDao accountDao;
 
+//    private Account testAccount;
+//    private Account testAccount2;
+
     @Before
     public void setup(){
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
@@ -36,6 +40,9 @@ public class JdbcTransferDaoTest extends BaseDaoTests {
         testUser2 = userDao.findByUsername("testUser2");
 
         accountDao = new JdbcAccountDao(jdbcTemplate);
+//        testAccount = accountDao.getAccountByUsername(testUser.getUsername());
+//        testAccount2 = accountDao.getAccountByUsername(testUser2.getUsername());
+//        Account testAccount = new Account();
 
         sut = new JdbcTransferDao(jdbcTemplate);
 
@@ -66,6 +73,42 @@ public class JdbcTransferDaoTest extends BaseDaoTests {
         Assert.assertEquals(transferListSize, expectedSize);
     }
 
+    @Test
+    public void getTransferByAccountSuccess() {
+        testTransfer = new Transfer
+                (3001,
+                BigDecimal.valueOf(100),
+                accountDao.getAccountByUsername(testUser2.getUsername()).getAccountId(),
+                accountDao.getAccountByUsername(testUser.getUsername()).getAccountId(),
+                "Approved",
+                "testUser2",
+                "testUser" );
+
+        Transfer actual = sut.createTransfer(testTransfer);
+
+        assertTransfersMatch(actual, testTransfer);
+    }
+
+    @Test(expected = UsernameNotFoundException.class)
+    public void getTransferByAccountInvalidUsername() {
+        sut.getTransfersByAccount("TestUser3");
+    }
+
+
+
+
+
+    //  TODO Does not like equals method in Transfer model
+    //  TODO add NullPointerException in JdbcTransferDao getTransferById?
+    @Test
+    public void getTransferByIdSuccess() {
+        testTransfer = new Transfer(3001, BigDecimal.valueOf(100), 2001, 2002,
+                "Approved", "James", "John" );
+
+        Transfer transfer = sut.getTransferById(3001);
+
+        Assert.assertEquals(testTransfer, transfer);
+    }
 
 
     private void assertTransfersMatch(Transfer expected, Transfer actual) {
